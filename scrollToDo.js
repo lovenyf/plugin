@@ -16,10 +16,11 @@
     // distance 底部显示距离开始加载
     // container 滚动容器
 
-    function scrollToDo(params){
+    function scrollToLoad(params){
         this.seletor = params.seletor;
         this.callback = params.callback || function(){};
         this.distance = params.distance || 50;
+        this.lazyStatus = params.lazyStatus || true;
         this.$container = $(params.container || document);
 
         this.screenHeight = $(params.container || window).height();
@@ -35,13 +36,22 @@
         // 下一张需要加载的top值
         this.nextUnloadTop = 0;
         this.allDone = true;
-
     }
     
     // 初始化
-    scrollToDo.prototype.init = function(){
+    scrollToLoad.prototype.init = function(){
         var self = this;
         this.$doms = $(this.seletor);
+
+        if(this.lazyStatus){
+            this.scrollLoad();
+        }else{
+            this.directLoad();
+        }
+    }
+
+    scrollToLoad.prototype.scrollLoad = function(){
+        var self = this;
 
         if(this.$doms.length > 0){
             this.nextUnloadTop = this.$doms.eq(0).offset().top;
@@ -89,12 +99,30 @@
         }
     }
 
+    scrollToLoad.prototype.directLoad = function(){
+        var self = this;
+
+        this.$doms.each(function(i, el){
+            var $dom = $(el);
+            if( !$dom.data('done') ){
+                $dom.data('done', true);
+                self.callback($dom);
+                //console.log(self.nextUnloadTop +" "+screenTop +" "+self.screenHeight +" "+self.distance)
+            }
+        });
+    }
+
     // 作用与动态添加dom节点后重置对象
-    scrollToDo.prototype.reset = function(){
+    scrollToLoad.prototype.reset = function(){
         this.$doms = $(this.seletor);
-        if(this.nextIndex < this.$doms.length){
-            this.allDone = false;
-            this.nextUnloadTop = this.$doms.eq(this.nextIndex).offset().top;
+
+        if(this.lazyStatus){
+            if(this.nextIndex < this.$doms.length){
+                this.allDone = false;
+                this.nextUnloadTop = this.$doms.eq(this.nextIndex).offset().top;
+            }
+        }else{
+            this.directLoad();
         }
     }
 
