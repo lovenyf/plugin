@@ -20,7 +20,7 @@
     // var scrollToDo = $.scrollToDo({
     //     seletor:'.img_container', 
     //     distance: 100,
-    //     lazyStatus: 'scroll'
+    //     lazyStatus: 'scroll',
     //     callback:function($el){
     //         $el.attr('src', $el.attr('data_src'));
     //     }
@@ -30,7 +30,7 @@
     // var scrollToDo = $.scrollToDo({
     //     seletor:'.img_container', 
     //     triggerNumber: 3, // 初始化加载3张 其余手动触发setCurrentIndex 设置当前焦点图片 加载其后面的 2张
-    //     lazyStatus: 'trigger' // 固定预先加载若干张图片
+    //     lazyStatus: 'trigger', // 固定预先加载若干张图片
     //     callback:function($el){
     //         $el.attr('src', $el.attr('data_src'));
     //     }
@@ -47,14 +47,14 @@
     // });
     // scrollToDo.init(); 
 
-    function scrollToLoad(params){
+    function scrollToDo(params){
         this.seletor = params.seletor;
         this.callback = params.callback || function(){};
         this.distance = params.distance || 50;
         this.lazyStatus = params.lazyStatus || "scroll";
         this.$container = $(params.container || document);
         // trigger 模式下预执行的数量
-        this.triggerNumber = params.triggerNumber || 2;
+        this.triggerNumber = params.triggerNumber || 0;
 
         this.screenHeight = $(params.container || window).height();
         
@@ -72,7 +72,7 @@
     }
     
     // 初始化
-    scrollToLoad.prototype.init = function(){
+    scrollToDo.prototype.init = function(){
         var self = this;
         this.$doms = $(this.seletor);
 
@@ -92,7 +92,7 @@
         }
     }
 
-    scrollToLoad.prototype.scrollLoad = function(){
+    scrollToDo.prototype.scrollLoad = function(){
         var self = this;
 
         if(this.$doms.length > 0){
@@ -109,7 +109,7 @@
 
             if(self.intervalFlog){
                 self.intervalFlog = false;
-                screenTop = self.$container.scrollTop();
+                screenTop = self.$container.scrollTop() || $('body').scrollTop();
 
                 // 触发当时的 top 值 循环处理多个图片
                 while((self.nextUnloadTop <= screenTop + self.screenHeight + self.distance) && !self.allDone ){
@@ -136,12 +136,12 @@
         // 在第一屏内部含有图片的 手动触发一次
         if((self.nextUnloadTop <= screenTop + self.screenHeight + self.distance) && !self.allDone ){
             setTimeout(function(){
-                self.$container.trigger('scroll.lazy');
+                self.$container.trigger('scroll');
             }, 500);
         }
     }
 
-    scrollToLoad.prototype.directLoad = function(){
+    scrollToDo.prototype.directLoad = function(){
         var self = this;
 
         this.$doms.each(function(i, el){
@@ -154,7 +154,7 @@
         });
     }
 
-    scrollToLoad.prototype.triggerLoad = function(){
+    scrollToDo.prototype.triggerLoad = function(){
         var self = this, $dom;
         for(var i = 0, len=this.$doms.length; i<len && i<this.triggerNumber; i++){
             $dom = this.$doms.eq(i);
@@ -164,7 +164,7 @@
             }
         }
 
-        scrollToLoad.prototype.setCurrentIndex = function(index){
+        scrollToDo.prototype.setCurrentIndex = function(index){
             var self = this;
             var $dom = this.$doms.eq(index + self.triggerNumber -1);
             if($dom.length || !$dom.data('stl-done')){
@@ -175,7 +175,7 @@
     }
 
     // 作用与动态添加dom节点后重置对象
-    scrollToLoad.prototype.reset = function(){
+    scrollToDo.prototype.reset = function(){
         this.$doms = $(this.seletor);
 
         if(this.lazyStatus === 'scroll'){
@@ -196,7 +196,7 @@
         }
     }
 
-    scrollToLoad.prototype.loadIndex = function(index) {
+    scrollToDo.prototype.loadIndex = function(index) {
         $dom = this.$doms.eq(index);
         if( !$dom.data('stl-done') ){
             $dom.data('stl-done', true);

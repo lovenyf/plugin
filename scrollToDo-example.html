@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        .btn{
+            display: inline-block;
+            padding: 8px 12px;
+            margin-bottom: 20px;
+            border:1px solid #CCC;
+            background-color: #FCFCFC;
+        }
+        .container{
+            margin-top: 20px;
+        }
+
+        img.block{
+            display: block;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+    
+<body>
+    <div class="btn scroll">滚动加载</div>
+    <div class="btn trigger">触发加载</div>
+    <div class="btn direct">直接加载</div>
+
+    <div class="container"></div>
+</body>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/zepto/1.1.4/zepto.min.js"></script>
+    <script type="text/javascript" src="./scrollToDo.js"></script>
+
+    <script>
+        var scrollToDo = $.scrollToDo({
+            seletor:'.container img', 
+            distance: 100,
+            lazyStatus: 'scroll',
+            callback:function($el){
+                $el.attr('src', $el.attr('img_src'));
+            }
+        });
+        var triggerToDo = $.scrollToDo({
+            seletor:'.container img', 
+            triggerNumber: 2,
+            lazyStatus: 'trigger',
+            callback:function($el){
+                $el.attr('src', $el.attr('img_src'));
+            }
+        });
+        var directToDo = $.scrollToDo({
+            seletor:'.container img',
+            lazyStatus: 'direct',
+            callback:function($el){
+                $el.attr('src', $el.attr('img_src'));
+            }
+        });
+
+
+
+        $('.scroll').click(function(){
+            $('.container').html(
+                '<p>图片滚动延迟加载示例</p>'+
+                new Array(20).join('<img class="block" src="http://rss.cbs.baidu.com/rsstopic/img/img_bg.png" img_src="http://www.people.com.cn/mediafile/pic/20160620/53/12903302572609998581.jpg" />')
+                )
+
+            setTimeout(function(){
+                scrollToDo.init();
+            }, 100);
+        });
+
+        $('.trigger').click(function(){
+            $('.container').html(
+                '<span>图片触发延迟加载示例</span>'+
+                '<button class="next">加载一张</button><br>'+
+                new Array(20).join('<img width="80" src="http://rss.cbs.baidu.com/rsstopic/img/img_bg.png" img_src="http://www.people.com.cn/mediafile/pic/20160620/53/12903302572609998581.jpg" />')
+                )
+
+            setTimeout(function(){
+                triggerToDo.init();
+            }, 100);
+        });
+
+        var i=0;
+        $('.container').on('click', '.next', function(){
+            triggerToDo.setCurrentIndex(++i);
+        });
+
+        $('.direct').click(function(){
+            $('.container').html(
+                '<p>直接加载示例</p>'+
+                new Array(20).join('<img width="80" src="http://rss.cbs.baidu.com/rsstopic/img/img_bg.png" img_src="http://www.people.com.cn/mediafile/pic/20160620/53/12903302572609998581.jpg" />')
+                )
+
+            setTimeout(function(){
+                directToDo.init();
+            }, 100);
+        });
+
+    </script>
+</html>
