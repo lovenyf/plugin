@@ -63,7 +63,7 @@
         // 滚动监听的interval
         this.interval = null;
         // scroll事件触发太过频繁调节器
-        this.intervalFlog = false;
+        this.intervalFlog = true;
 
         this.nextIndex = 0;
         // 下一张需要加载的top值
@@ -134,7 +134,7 @@
         });
 
         // 在第一屏内部含有图片的 手动触发一次
-        if((self.nextUnloadTop <= screenTop + self.screenHeight + self.distance) && !self.allDone ){
+        if((self.nextUnloadTop <= (self.$container.scrollTop() || $('body').scrollTop()) + self.screenHeight + self.distance) && !self.allDone ){
             setTimeout(function(){
                 self.$container.trigger('scroll');
             }, 500);
