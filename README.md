@@ -50,3 +50,40 @@
         }
     });
     scrollToDo.init(); 
+
+
+# 无库依赖
+
+## registerScroll
+
+> 注册实现滚动加载事件对象
+> 设置滚动高度 当可视区域底部滑动到该高度的时候 执行回调
+
+    var a = new RegisterScroll(scrollDom);
+
+**scrollDom 参数**
+可选 设置滚动的节点
+
+    a.register(opts);
+
+**opts 参数**
+必选 内部属性 可为对象或者对象数组
+name: 'xxxx',   (必选)触发对象的key
+scrollToValue: 100, (必选)滚动到的触发点
+isRepeatTrigger: true, (可选)满足条件是否重复触发 默认为false
+isTriggerNow: true, (可选)注册时候是否立即进行判断触发
+callback: function(){},   //(必选) 
+
+    a.trigger(opts);
+
+    **opts 参数**
+
+与register一致
+
+    a.cancel(name);
+
+去掉key为name的注册回调
+
+    a.destroy();
+
+销毁a滚动事件

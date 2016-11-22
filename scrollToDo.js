@@ -102,7 +102,7 @@
             
         this.interval = setInterval(function(){
             self.intervalFlog = true;
-        }, 150);
+        }, 50);
 
         this.$container.on('scroll.lazy',function(){
             var screenTop, $dom;
