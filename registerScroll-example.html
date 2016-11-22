@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        .container{
+            height: 5000px;
+        }
+
+    </style>
+</head>
+    
+<body>
+    <div class="container"></div>
+</body>
+    <script type="text/javascript" src="./registerScroll.js"></script>
+
+    <script>
+        
+    var a = new RegisterScroll();
+    a.register({
+        scrollToValue: 1800,
+        name:'2w22',
+        callback: function(i){alert('底部已经滑到'+i.scrollToValue);console.log(i)}
+   })
+    </script>
+</html>
