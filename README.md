@@ -1,6 +1,6 @@
 ## 无依赖
 
-- [registerScroll](https://github.com/niyingfeng/plugin#registerScroll):对于滚动到某一位置触发事件
+- [registerScroll](https://github.com/niyingfeng/plugin#registerscroll):对于滚动到某一位置触发事件
 
 ## zepto plugin
 
