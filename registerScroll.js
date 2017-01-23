@@ -30,71 +30,78 @@
 
 // 销毁a滚动事件
 
-var RegisterScroll = function(scrollDom){
-    var self = this;
+(function(window) {
 
-    this.scrollDom = scrollDom || document;
-    this.scrollTopDom = scrollDom || document.querySelector('body');
-    this.scrollDomHeight = scrollDom?scrollDom.clientHeight:window.screen.height;
+    var RegisterScroll = function(scrollDom){
+        var self = this;
 
-    this.scrollPointList = [];
+        this.scrollDom = scrollDom || document;
+        this.scrollTopDom = scrollDom || document.querySelector('body');
+        this.scrollDomHeight = scrollDom?scrollDom.clientHeight:window.screen.height;
 
-    // 简陋的滚动事件优化机制
-    this.lock = false;
-    this.scrollFunc = function(e){
-        if(self.lock) return;
-        self.lock = true;
-        self.top = self.scrollTopDom.scrollTop;
+        this.scrollPointList = [];
 
-        self.scrollPointList.forEach(function(item){
-            self.trigger(item);
-        });
+        // 简陋的滚动事件优化机制
+        this.lock = false;
+        this.scrollFunc = function(e){
+            if(self.lock) return;
+            self.lock = true;
+            self.top = self.scrollTopDom.scrollTop;
 
-        setTimeout(function(){
-            self.lock = false;
-        },50);
-    } 
+            self.scrollPointList.forEach(function(item){
+                self.trigger(item);
+            });
 
-    this.scrollDom.addEventListener('scroll', this.scrollFunc, false);
-}
+            setTimeout(function(){
+                self.lock = false;
+            },50);
+        } 
 
-// 触发已注册事件
-RegisterScroll.prototype.trigger = function(item){
-    if(!item.triggered && item.scrollToValue < this.scrollDomHeight + this.top){
-        console.log(item.name + ' trigger');
-        item.callback(item);
+        this.scrollDom.addEventListener('scroll', this.scrollFunc, false);
+    }
 
-        if(!item.isRepeatTrigger){
-            item.triggered = true;
+    // 触发已注册事件
+    RegisterScroll.prototype.trigger = function(item){
+        if(!item.triggered && item.scrollToValue < this.scrollDomHeight + this.top){
+            console.log(item.name + ' trigger');
+            item.callback(item);
+
+            if(!item.isRepeatTrigger){
+                item.triggered = true;
+            }
         }
     }
-}
-// 注册滚动触发事件
-RegisterScroll.prototype.register = function(opts){
-    // 接受数组与单例对象
-    if(opts.scrollToValue){
-        this.scrollPointList.push(opts);
-        if(opts.isTriggerNow !== false){
-            this.trigger(opts);
+    // 注册滚动触发事件
+    RegisterScroll.prototype.register = function(opts){
+        // 接受数组与单例对象
+        if(opts.scrollToValue){
+            this.scrollPointList.push(opts);
+            if(opts.isTriggerNow !== false){
+                this.trigger(opts);
+            }
+        }else{
+            opts.forEach(function(item){
+                this.scrollPointList.push(item);
+                if(item.isTriggerNow !== false){
+                    this.trigger(item);
+                }
+            });
         }
-    }else{
+    }
+    // 注销 纯粹只是设置为已触发
+    RegisterScroll.prototype.cancel = function(name){
         opts.forEach(function(item){
-            this.scrollPointList.push(item);
-            if(item.isTriggerNow !== false){
-                this.trigger(item);
+            if(item.name === name){
+                item.isRepeatTrigger = false;
+                item.triggered = true;
             }
         });
     }
-}
-// 注销 纯粹只是设置为已触发
-RegisterScroll.prototype.cancel = function(name){
-    opts.forEach(function(item){
-        if(item.name === name){
-            item.triggered = true;
-        }
-    });
-}
-// 销毁本次滚动事件
-RegisterScroll.prototype.destroy = function(){
-    this.scrollDom.removeEventListener('scroll', this.scrollFunc, false);
-}
+    // 销毁本次滚动事件
+    RegisterScroll.prototype.destroy = function(){
+        this.scrollDom.removeEventListener('scroll', this.scrollFunc, false);
+    }
+
+    window.RegisterScroll = RegisterScroll;
+
+}(window));

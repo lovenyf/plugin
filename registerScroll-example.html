@@ -12,17 +12,38 @@
 </head>
     
 <body>
-    <div class="container"></div>
+    <div class="container">
+        <button id='s18'>注册1800px事件</button>
+        <button id='s36'>注册3600px持续事件</button>
+        <button id='s36x'>注销3600px持续事件</button>
+    </div>
 </body>
     <script type="text/javascript" src="./registerScroll.js"></script>
 
     <script>
-        
-    var a = new RegisterScroll();
-    a.register({
-        scrollToValue: 1800,
-        name:'2w22',
-        callback: function(i){alert('底部已经滑到'+i.scrollToValue);console.log(i)}
-   })
+    
+    document.querySelector('#s18').onclick = function(){
+        var a = new RegisterScroll();
+        a.register({
+            scrollToValue: 1800,
+            name:'1800',
+            callback: function(i){alert('底部已经滑到'+i.scrollToValue);console.log(i)}
+       })
+    }
+
+    var b;
+    document.querySelector('#s36').onclick = function(){
+        b = new RegisterScroll();
+        b.register({
+            scrollToValue: 3600,
+            name:'3600',
+            isRepeatTrigger: true,
+            callback: function(i){alert('底部已经滑到'+i.scrollToValue);console.log(i)}
+       })
+    }
+
+    document.querySelector('#s36x').onclick = function(){
+        b.destroy();
+    }
     </script>
 </html>
