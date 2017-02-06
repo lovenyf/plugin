@@ -3,6 +3,10 @@
     // 
     // 
 
+    // 快排的两种形式
+    // 较为快捷的为 将单个数组变为 leftArr base 和 rightArr 进行合并 并且循环递归
+    // 复杂一点为 不断比较 交换数组内数据
+    
     // 快排1
     // 1）设置两个变量i、j，排序开始的时候：i=0，j=N-1；
     // 2）以第一个数组元素作为关键数据，赋值给key，即key=A[0]；
@@ -87,6 +91,168 @@
     }
 
 
+    // 简化的模板引擎
+    function template(){
+        // html转义映射对象
+        var escapeMap = {
+                '&' : '&amp;',
+                '<' : '&lt;',
+                '>' : '&gt;',
+                '"' : '&quot;',
+                "'" : '&#x27;'
+            },
+
+            // html转义正则
+            escapeReg = /[&<>"\']/g,
+
+            // 变量以及语句语法正则
+            transformMethod = {
+                escape : '<%=([\\s\\S]+?)%>',
+                unescape : '<%-([\\s\\S]+?)%>',
+                normal : '<%([\\s\\S]+?)%>'
+            },
+            transformReg = new RegExp([
+                transformMethod.escape,
+                transformMethod.unescape,
+                transformMethod.normal].join('|'), 'g');
+
+        // html转义方法
+        var esacpeFunc = function( str ){
+            return str.toString().replace( escapeReg, function( match ){
+                return escapeMap[ match ];
+            } );
+        };
+
+        // 主要逻辑为根据提供的模板进行生成 new Function 的 字符串函数体
+        // 利用 replace 的 function参数形式处理
+        // 使用闭包形式使得 new Function出来的function 可以使用当前作用域数据
+        return function( tmpl, data ){
+            var tmplStr = "_s+='",
+                index = 0, len = tmpl.length;
+
+            var c = tmpl.replace( transformReg, 'a');
+            tmpl.replace( transformReg, function( match, escape, unescape, normal, offset){
+
+                tmplStr += tmpl.slice(index, offset).replace(/'/g,"\\'");
+
+                if( escape ){
+                    tmplStr += "';\n_s+=((" + escape + ")==null?'':esacpeFunc(" + escape + "));\n_s+='"
+                }else if( unescape ){
+                    tmplStr += "';\n_s+=((" + unescape + ")==null?'':" + unescape + ");\n_s+='"
+                }else if( normal ){
+                    tmplStr += "';\n" + normal + ";\n_s+='"
+                }
+
+                index = offset + match.length;
+            } );
+
+            tmplStr += tmpl.slice(index, len) + "'";
+
+            tmplStr = "var _s='';\n with(data){\n "+ tmplStr +"}\n return _s;";
+
+            var tmplFunc = new Function( "data", "esacpeFunc", tmplStr ),
+
+            rander = function( data ){
+                return tmplFunc( data, esacpeFunc );
+            }
+
+            // 方便调试
+            //rander.tmplFunc = tmplFunc;
+
+            return data ? rander( data ) : rander;
+        }
+    }
+
+    // underscore 节流函数 在wait时间内 最多触发一次 并且会处理时间间隔内的最后一点
+    // 果你想禁用第一次首先执行的话，传递{leading: false}，
+    // 还有如果你想禁用最后一次执行的话，传递{trailing: false}
+    function throttle(func, wait, options) {
+        var timeout, context, args, result;
+        var previous = 0; // 前一次调用时间
+        if (!options) options = {};
+
+        // 未到节流时间点上的触发，选择使用setTimeout的形式来处理
+        var later = function() {
+            previous = options.leading === false ? 0 : +new Date();
+            timeout = null;
+            result = func.apply(context, args);
+            if (!timeout) context = args = null;
+        };
+
+        var throttled = function() {
+            // 设置调用时的当前时间点
+            var now = +new Date();
+
+            // 禁用第一次首先执行
+            if (!previous && options.leading === false) previous = now;
+
+            var remaining = wait - (now - previous);
+
+            context = this;
+            args = arguments;
+
+            // 判断时间
+            if (remaining <= 0 || remaining > wait) {
+                // 若有setTimeout
+                if (timeout) {
+                    clearTimeout(timeout);
+                    timeout = null;
+                }
+
+                // 设置调用时间
+                previous = now;
+                result = func.apply(context, args);
+
+                if (!timeout) context = args = null;
+
+            } else if (!timeout && options.trailing !== false) {
+                // 此处就是自己之前纠结的地方
+                // 如何控制最后点上的触发
+                timeout = setTimeout(later, remaining);
+            }
+            return result;
+        };
+
+        throttled.cancel = function() {
+            clearTimeout(timeout);
+            previous = 0;
+            timeout = context = args = null;
+        };
+
+        return throttled;
+    };
+
+    // underscore 防抖函数 改造无依赖版本
+    // 将延迟函数的执行(真正的执行)在函数最后一次调用时刻的 wait 毫秒之后
+    // 传参 immediate 为 true， debounce会在 wait 时间间隔的开始调用这个函数
+    function debounce(func, wait, immediate) {
+        var timeout, result, args, self;
+
+        var later = function() {
+            timeout = null;
+            if (args) result = func.apply(self, args);
+        };
+
+        var debounced = function() {
+            if (timeout) clearTimeout(timeout);
+            args = arguments;
+            self = this;
+            if (immediate) {
+                var callNow = !timeout;
+                if (callNow) result = func.apply(this, args);
+            } 
+            timeout = setTimeout(later, wait);
+            return result;
+        };
+
+        debounced.cancel = function() {
+            clearTimeout(timeout);
+            timeout = null;
+        };
+
+        return debounced;
+    };
+
 
     return {
         quickSort: function(arr){
@@ -95,6 +261,12 @@
         quickSort2: quickSort2, // 快排2
 
         bubbleSort: bubbleSort, // 冒泡
+
+        template: template, // 简单的模版方法
+
+        throttle: throttle, // 节流方法
+
+        debounce: debounce, // 防抖方法
     }
 
 })();
