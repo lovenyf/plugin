@@ -253,6 +253,21 @@
         return debounced;
     };
 
+    function curry(func, argsArr){
+        var funcLen = func.length;
+        var sliceFunc = [].slice;
+        argsArr = argsArr || [];
+
+        return function currying(){
+            argsArr = argsArr.concat(sliceFunc.call(arguments));
+
+            if(argsArr.length < funcLen){
+                return currying;
+            }else{
+                return func.apply(this, argsArr);
+            }
+        }
+    };
 
     return {
         quickSort: function(arr){
@@ -267,6 +282,8 @@
         throttle: throttle, // 节流方法
 
         debounce: debounce, // 防抖方法
+
+        curry: curry // 柯里化方法
     }
 
 })();
