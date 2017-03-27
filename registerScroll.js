@@ -77,12 +77,14 @@
         if(opts.scrollToValue){
             this.scrollPointList.push(opts);
             if(opts.isTriggerNow !== false){
+                this.top = this.scrollTopDom.scrollTop;
                 this.trigger(opts);
             }
         }else{
             opts.forEach(function(item){
                 this.scrollPointList.push(item);
                 if(item.isTriggerNow !== false){
+                    this.top = this.scrollTopDom.scrollTop;
                     this.trigger(item);
                 }
             });
